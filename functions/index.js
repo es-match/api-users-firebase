@@ -57,9 +57,9 @@ router.post("/users", (request, response) => {
 
   const newUser = {
     "userID": request.body.userID,
-    "userEmail": request.data().userEmail,
-    "userName": request.data().userName,
-    "roleID": request.data().roleID,
+    "userEmail": request.body.userEmail,
+    "userName": request.body.userName,
+    "roleID": request.body.roleID,
     "birthDate": birthDate,
     "createDate": actualDate,
   };
@@ -95,10 +95,7 @@ router.patch("/users/:id", (request, response) => {
       const birthDate = new Date(Date.parse(body.birthDate));
       newUser.birthDate = birthDate;
     }
-    if (body.createDate) {
-      const createDate = new Date(Date.parse(body.createDate));
-      newUser.createDate = createDate;
-    }
+
     db.doc(request.params.id).update(newUser)
         .then(
             (user) => response.send(`${user.id} updated sucessfully`)
