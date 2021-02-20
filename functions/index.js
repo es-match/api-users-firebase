@@ -1,10 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const app = require("express")();
-// const routes = require("./routes/users.routes.js");
-// const routesAdmin = admin.initializeApp({
-//   credential: admin.credential.cert("../routes/users.routes.js"),
-// });
+
 const router = require("express")();
 admin.initializeApp();
 
@@ -22,8 +19,36 @@ router.get("/users/:id", (request, response) => {
         id: user.id,
         userEmail: user.data().userEmail,
         userName: user.data().userName,
-        roleID: user.data().roleID,
-        birthDate: new Date(user.data().userName),
+        role: user.data().role,
+        imageUrl: user.data().imageUrl,
+        createDate: new Date(user.data().createDate),
+      })
+          .catch((error) => response.status(400)
+              .send(`Cannot get user: ${error}`)));
+});
+
+router.get("/users/{googleToken}", (request, response) => {
+  db.where("googleToken", "==", request.params.googleToken).get()
+      .then((user) => response.status(200).json({
+        id: user.id,
+        userEmail: user.data().userEmail,
+        userName: user.data().userName,
+        role: user.data().role,
+        imageUrl: user.data().imageUrl,
+        createDate: new Date(user.data().createDate),
+      })
+          .catch((error) => response.status(400)
+              .send(`Cannot get user: ${error}`)));
+});
+
+router.get("/users/{emailToken}", (request, response) => {
+  db.where("emailToken", "==", request.params.emailToken).get()
+      .then((user) => response.status(200).json({
+        id: user.id,
+        userEmail: user.data().userEmail,
+        userName: user.data().userName,
+        role: user.data().role,
+        imageUrl: user.data().imageUrl,
         createDate: new Date(user.data().createDate),
       })
           .catch((error) => response.status(400)
@@ -40,8 +65,8 @@ router.get("/users", (request, response) => {
             id: user.id,
             userEmail: user.data().userEmail,
             userName: user.data().userName,
-            roleID: user.data().roleID,
-            birthDate: new Date(user.data().userName),
+            role: user.data().role,
+            imageUrl: user.data().imageUrl,
             createDate: new Date(user.data().createDate),
           });
         });
@@ -52,20 +77,20 @@ router.get("/users", (request, response) => {
 
 
 router.post("/users", (request, response) => {
-  const birthDate = new Date(Date.parse(request.body.birthDate));
   const actualDate = new Date(Date.now());
 
   const newUser = {
-    "userID": request.body.userID,
+    "googleToken": request.body.googleToken,
+    "emailToken": request.body.emailToken,
     "userEmail": request.body.userEmail,
     "userName": request.body.userName,
-    "roleID": request.body.roleID,
-    "birthDate": birthDate,
+    "role": request.body.role,
+    "imageUrl": request.body.imageUrl,
     "createDate": actualDate,
   };
   db.add(newUser)
-      .then(() => {
-        response.status(200).json("Success Added");
+      .then((value) => {
+        response.status(200).json(value);
       });
 });
 
@@ -88,13 +113,13 @@ router.patch("/users/:id", (request, response) => {
     const body = request.body;
     if (body.userEmail) newUser.userEmail = body.userEmail;
 
-    if (body.userName) newUser.userName = body.userName;
-    if (body.roleID) newUser.roleID = body.roleID;
+    if (body.googleToken) newUser.googleToken = body.googleToken;
+    if (body.emailToken) newUser.emailToken = body.emailToken;
 
-    if (body.birthDate) {
-      const birthDate = new Date(Date.parse(body.birthDate));
-      newUser.birthDate = birthDate;
-    }
+
+    if (body.userName) newUser.userName = body.userName;
+    if (body.role) newUser.role = body.role;
+    if (body.imageUrl) newUser.imageUrl = body.imageUrl;
 
     db.doc(request.params.id).update(newUser)
         .then(
