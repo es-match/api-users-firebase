@@ -27,7 +27,7 @@ router.get("/users/:id", (request, response) => {
               .send(`Cannot get user: ${error}`)));
 });
 
-router.get("/users/{googleToken}", (request, response) => {
+router.get("/users/googleToken/:googleToken", (request, response) => {
   db.where("googleToken", "==", request.params.googleToken).get()
       .then((user) => response.status(200).json({
         id: user.id,
@@ -41,19 +41,19 @@ router.get("/users/{googleToken}", (request, response) => {
               .send(`Cannot get user: ${error}`)));
 });
 
-router.get("/users/{emailToken}", (request, response) => {
-  db.where("emailToken", "==", request.params.emailToken).get()
-      .then((user) => response.status(200).json({
-        id: user.id,
-        userEmail: user.data().userEmail,
-        userName: user.data().userName,
-        role: user.data().role,
-        imageUrl: user.data().imageUrl,
-        createDate: new Date(user.data().createDate),
-      })
-          .catch((error) => response.status(400)
-              .send(`Cannot get user: ${error}`)));
-});
+// router.get("/users/:emailToken", (request, response) => {
+//   db.where("emailToken", "==", request.params.emailToken).get()
+//       .then((user) => response.status(200).json({
+//         id: user.id,
+//         userEmail: user.data().userEmail,
+//         userName: user.data().userName,
+//         role: user.data().role,
+//         imageUrl: user.data().imageUrl,
+//         createDate: new Date(user.data().createDate),
+//       })
+//           .catch((error) => response.status(400)
+//               .send(`Cannot get user: ${error}`));
+// });
 
 router.get("/users", (request, response) => {
   db.get()
@@ -90,7 +90,9 @@ router.post("/users", (request, response) => {
   };
   db.add(newUser)
       .then((value) => {
-        response.status(200).json(value);
+        response.status(200).json(value.id);
+      }).catch(function(error) {
+        response.status(500).json(error);
       });
 });
 
