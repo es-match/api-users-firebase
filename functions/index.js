@@ -12,6 +12,42 @@ const db = admin.firestore()
 app.use("/api/v1", router);
 
 
+router.get("/users/googleToken/:googleToken", (request, response) => {
+  db.where("googleToken", "==", request.params.googleToken).get()
+      .then((snapshot) => {
+        if (!snapshot.empty) {
+          const user = snapshot.docs[0];
+          // response.send("USER FOUND");
+          response.status(200).json({
+            id: user.id,
+            userEmail: user.data().userEmail,
+            userName: user.data().userName,
+            role: user.data().role,
+            imageUrl: user.data().imageUrl,
+            createDate: new Date(user.data().createDate),
+          });
+        } else {
+          response.send("USER NOT FOUND");
+        }
+      });
+  // response.send("PATH OK");
+});
+
+
+// router.get("/users/:emailToken", (request, response) => {
+//   db.where("emailToken", "==", request.params.emailToken).get()
+//       .then((user) => response.status(200).json({
+//         id: user.id,
+//         userEmail: user.data().userEmail,
+//         userName: user.data().userName,
+//         role: user.data().role,
+//         imageUrl: user.data().imageUrl,
+//         createDate: new Date(user.data().createDate),
+//       })
+//           .catch((error) => response.status(400)
+//               .send(`Cannot get user: ${error}`));
+// });
+
 // View a contact
 router.get("/users/:id", (request, response) => {
   db.doc(request.params.id).get()
@@ -27,33 +63,6 @@ router.get("/users/:id", (request, response) => {
               .send(`Cannot get user: ${error}`)));
 });
 
-router.get("/users/googleToken/:googleToken", (request, response) => {
-  db.where("googleToken", "==", request.params.googleToken).get()
-      .then((user) => response.status(200).json({
-        id: user.id,
-        userEmail: user.data().userEmail,
-        userName: user.data().userName,
-        role: user.data().role,
-        imageUrl: user.data().imageUrl,
-        createDate: new Date(user.data().createDate),
-      })
-          .catch((error) => response.status(400)
-              .send(`Cannot get user: ${error}`)));
-});
-
-// router.get("/users/:emailToken", (request, response) => {
-//   db.where("emailToken", "==", request.params.emailToken).get()
-//       .then((user) => response.status(200).json({
-//         id: user.id,
-//         userEmail: user.data().userEmail,
-//         userName: user.data().userName,
-//         role: user.data().role,
-//         imageUrl: user.data().imageUrl,
-//         createDate: new Date(user.data().createDate),
-//       })
-//           .catch((error) => response.status(400)
-//               .send(`Cannot get user: ${error}`));
-// });
 
 router.get("/users", (request, response) => {
   db.get()
