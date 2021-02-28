@@ -27,13 +27,32 @@ router.get("/users/googleToken/:googleToken", (request, response) => {
             createDate: new Date(user.data().createDate),
           });
         } else {
-          response.send("USER NOT FOUND");
+          response.status(400).send("USER NOT FOUND");
         }
       });
   // response.send("PATH OK");
 });
 
-
+router.get("/users/emailToken/:emailToken", (request, response) => {
+  db.where("emailToken", "==", request.params.emailToken).get()
+      .then((snapshot) => {
+        if (!snapshot.empty) {
+          const user = snapshot.docs[0];
+          // response.send("USER FOUND");
+          response.status(200).json({
+            id: user.id,
+            userEmail: user.data().userEmail,
+            userName: user.data().userName,
+            role: user.data().role,
+            imageUrl: user.data().imageUrl,
+            createDate: new Date(user.data().createDate),
+          });
+        } else {
+          response.status(400).send("USER NOT FOUND");
+        }
+      });
+  // response.send("PATH OK");
+});
 // router.get("/users/:emailToken", (request, response) => {
 //   db.where("emailToken", "==", request.params.emailToken).get()
 //       .then((user) => response.status(200).json({
@@ -101,7 +120,7 @@ router.post("/users", (request, response) => {
       .then((value) => {
         response.status(200).json(value.id);
       }).catch(function(error) {
-        response.status(500).json(error);
+        response.status(500).send(error);
       });
 });
 
