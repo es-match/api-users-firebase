@@ -12,6 +12,10 @@ const db = admin.firestore()
 app.use("/api/v1", router);
 
 
+router.get("/users/byUserList",(request,response)=>{
+  db.where("user")
+});
+
 router.get("/users/googleToken/:googleToken", (request, response) => {
   db.where("googleToken", "==", request.params.googleToken).get()
       .then((snapshot) => {
@@ -53,19 +57,7 @@ router.get("/users/emailToken/:emailToken", (request, response) => {
       });
   // response.send("PATH OK");
 });
-// router.get("/users/:emailToken", (request, response) => {
-//   db.where("emailToken", "==", request.params.emailToken).get()
-//       .then((user) => response.status(200).json({
-//         id: user.id,
-//         userEmail: user.data().userEmail,
-//         userName: user.data().userName,
-//         role: user.data().role,
-//         imageUrl: user.data().imageUrl,
-//         createDate: new Date(user.data().createDate),
-//       })
-//           .catch((error) => response.status(400)
-//               .send(`Cannot get user: ${error}`));
-// });
+
 
 // View a contact
 router.get("/users/:id", (request, response) => {
